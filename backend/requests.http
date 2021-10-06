@@ -1,0 +1,24 @@
+POST http://localhost:3001/signup HTTP/1.1
+content-type: application/json
+
+{
+    "username": "conta",
+    "password": "9090",
+    "nickname": "Testando ..",
+    "pictureHash": "B3bTTlF.jpeg"
+}
+
+###
+POST http://localhost:3001/signin HTTP/1.1
+content-type: application/json
+
+{
+    "username": "johndoe",
+    "password": "9090"
+}
+
+###
+GET http://localhost:3001/users/614633e8c8e0950c6f4aa711 HTTP/1.1
+###
+DELETE  http://localhost:3001/messages HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYxNGI5YmY4MzA1NmU1ZTdmNDZjZjE0MSIsImlhdCI6MTYzMzI3NTYxMH0.hj-o7Y4MecF65dtEq0mpDA6XZilwxrNhnrGhSNxP_r0
