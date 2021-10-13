@@ -44,6 +44,10 @@ io.on('connection', async (socket: ExtSocket) => {
       return socket.to(contactId).emit('client-received-message', id, changes);
     }
   );
+
+  socket.on('is-online', (contactId: string, confirmIsOnline) => {
+    return confirmIsOnline(!!io.sockets.adapter.rooms.get(contactId)?.size);
+  });
 });
 
 export default server;

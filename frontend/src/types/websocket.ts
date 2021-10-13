@@ -5,4 +5,5 @@ export interface ExtWebSocket
   extends Socket<DefaultEventsMap, DefaultEventsMap> {
   subscribeToMessages?: () => void;
   unsubscribeToMessages?: () => void;
+  checkIsOnline?: (contactId: string, cb: (isOnline: boolean) => void) => void;
 }

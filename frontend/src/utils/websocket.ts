@@ -1,4 +1,4 @@
-import { ExtWebSocket } from './../types/websocket';
+import { ExtWebSocket } from 'types/websocket';
 import { io } from 'socket.io-client';
 import db from 'utils/Dexie';
 import jwtDecode from 'jwt-decode';
@@ -53,5 +53,11 @@ ws.once('fetch-unread-messages', async (messages) => {
     }
   }
 });
+
+ws.checkIsOnline = (contactId: string, cb: (isOnline: boolean) => void) => {
+  ws.emit('is-online', contactId, (isOnline: boolean) => {
+    cb(isOnline);
+  });
+};
 
 export default ws;
