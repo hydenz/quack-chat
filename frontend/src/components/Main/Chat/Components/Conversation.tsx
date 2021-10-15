@@ -17,7 +17,7 @@ const Conversation = () => {
   }, [selectedContactId]);
 
   return (
-    <div className='bg-react-logo bg-cover overflow-auto flex flex-grow flex-col-reverse px-22 scrollbar-thin'>
+    <div className='bg-react-logo bg-100 overflow-auto flex flex-grow flex-col-reverse px-22 scrollbar-thin'>
       <div className='flex flex-col'>
         {messages &&
           !!messages.length &&

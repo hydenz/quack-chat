@@ -5,7 +5,9 @@ import jwtDecode from 'jwt-decode';
 
 const ws: ExtWebSocket = io('http://localhost:3001', {
   auth: {
-    userId: (jwtDecode(localStorage.getItem('accessToken')!) as any).id,
+    userId:
+      localStorage.getItem('accessToken') &&
+      (jwtDecode(localStorage.getItem('accessToken')!) as any).id,
   },
 });
 
