@@ -1,15 +1,19 @@
-import { Transition } from '@headlessui/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Contact, Header, Input } from './Components/Index';
 import NewChat from './Components/NewChat';
 import type { Contact as ContactType } from 'utils/Dexie';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useAppDispatch } from 'hooks/useDispatch';
+import getHour from 'utils/time';
 import { ACTION_TYPES } from 'store';
 import db from 'utils/Dexie';
+import EditProfile from './Components/EditProfile';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import Slider from './Components/Slider';
 
 const Menu = () => {
   const [showNewChat, setShowNewChat] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
 
   const dispatch = useAppDispatch();
 
@@ -31,53 +35,62 @@ const Menu = () => {
   const selectContact = (id: string) =>
     dispatch({ type: ACTION_TYPES.SELECT_CONTACT, payload: { id } });
 
+  const [numOfLoaded, setNumOfLoaded] = useState(0);
+  const [picsFade, setPicsFade] = useState(false);
+
+  useEffect(() => {
+    if (numOfLoaded === contacts?.length) setPicsFade(true);
+  }, [numOfLoaded, contacts?.length]);
+
   return (
     <div className='w-100 relative'>
-      <Transition
-        show={showNewChat}
-        enter='transition-all ease-in duration-200'
-        enterFrom='-left-full'
-        enterTo='left-0'
-        leave='transition-all ease-in duration-200'
-        leaveFrom='left-0'
-        leaveTo='-left-full'
-        className='w-100 h-full flex flex-col absolute z-20'
-      >
-        <NewChat closeNewChat={() => setShowNewChat(false)} />
-      </Transition>
       <div className='flex flex-col h-screen border-r border-divider'>
-        <Header openNewChat={() => setShowNewChat(true)} />
+        <Slider
+          show={showEditProfile}
+          title='Edit profile'
+          onClose={() => setShowEditProfile(false)}
+        >
+          <EditProfile />
+        </Slider>
+        <Slider
+          show={showNewChat}
+          title='Start a conversation'
+          onClose={() => setShowNewChat(false)}
+        >
+          <NewChat onSelection={() => setShowNewChat(false)} />
+        </Slider>
+        <Header
+          openNewChat={() => setShowNewChat(true)}
+          openEditProfile={() => setShowEditProfile(true)}
+        />
         <Input placeholder='Search a conversation' />
-        <div className='overflow-auto flex-grow bg-contact-dark relative scrollbar-thin'>
-          {contacts &&
-            sortedMessages &&
-            !!contacts.length &&
-            contacts.map(({ id }: ContactType) => (
-              <Transition
-                key={id}
-                show
-                appear
-                unmount
-                enter='transition-opacity ease-in duration-200'
-                enterFrom='opacity-0'
-                enterTo='opacity-100'
-                leave='transition-opacity ease-in duration-200'
-                leaveFrom='opacity-100'
-                leaveTo='opacity-0'
-              >
-                <Contact
-                  id={id}
-                  lastMessage={
-                    sortedMessages.find((message) => message.contactId === id)
-                      ?.content
-                  }
-                  onClick={() => selectContact(id)}
-                  order={sortedMessages!.findIndex(
-                    (el: any) => el.contactId === id
-                  )}
-                />
-              </Transition>
-            ))}
+        <div className='flex-grow bg-contact-dark scrollbar-thin relative'>
+          {contacts && sortedMessages && (
+            <TransitionGroup appear>
+              {contacts.map(({ id }: ContactType) => (
+                <CSSTransition classNames='fade' timeout={300} key={id}>
+                  <Contact
+                    id={id}
+                    lastMessage={
+                      sortedMessages.find((message) => message.contactId === id)
+                        ?.content
+                    }
+                    lastMessageTimestamp={getHour(
+                      sortedMessages.find(
+                        (message) => message.contactId === id
+                      )!.firstTimestamp
+                    )}
+                    onPictureLoad={() => setNumOfLoaded((old) => old + 1)}
+                    pictureFade={picsFade}
+                    onClick={() => selectContact(id)}
+                    order={sortedMessages!.findIndex(
+                      (el: any) => el.contactId === id
+                    )}
+                  />
+                </CSSTransition>
+              ))}
+            </TransitionGroup>
+          )}
         </div>
       </div>
     </div>

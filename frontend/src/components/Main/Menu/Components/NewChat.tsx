@@ -1,20 +1,33 @@
 import Input from './Input';
 import { useDebouncedCallback } from 'use-debounce/lib';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import api from 'api/index';
 import { Contact } from 'components/Main/Menu/Components/Index';
 import { useAppDispatch } from 'hooks/useDispatch';
 import { ACTION_TYPES } from 'store';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-const NewChat = ({ closeNewChat }: NewChatProps) => {
+const NewChat = ({ onSelection }: NewChatProps) => {
   const [newChatSearch, setNewChatSearch] = useState('');
-  const [foundNewChats, setFoundNewChats] = useState([]);
+  const [loaded, setLoaded] = useState<any>(0);
+  const [foundNewChats, setFoundNewChats] = useState<any>([]);
 
   const debounced = useDebouncedCallback(async (value: string) => {
     const { data } = await api.get(`/users?nickname=${value}`);
-    setFoundNewChats(data.results);
+    setLoaded(0);
+    setFoundNewChats((oldChats: any) => {
+      if (!oldChats.length) return data.results;
+      const mappedNewChats = data.results.map((contact: any) => contact._id);
+      const oldChatsFiltered = oldChats.filter((chat: any) =>
+        mappedNewChats.includes(chat._id)
+      );
+      const oldChatsFilteredIds = oldChatsFiltered.map((chat: any) => chat._id);
+      const newChatsFiltered = data.results.filter(
+        (chat: any) => !oldChatsFilteredIds.includes(chat._id)
+      );
+      return [...oldChatsFiltered, ...newChatsFiltered];
+    });
   }, 1000);
-
   const handleOnChange = (newValue: string) => {
     setNewChatSearch(newValue);
     debounced(newValue);
@@ -23,41 +36,44 @@ const NewChat = ({ closeNewChat }: NewChatProps) => {
   const dispatch = useAppDispatch();
 
   const addChat = async (id: string) => {
-    // const contact = await db.contacts.get({ id });
-    // if (!contact) await db.contacts.add({ id, messages: [] });
     dispatch({ type: ACTION_TYPES.SELECT_CONTACT, payload: { id } });
-    closeNewChat();
+    onSelection();
   };
+
+  const previousFoundChats = useRef<any>();
+
+  useEffect(() => {
+    previousFoundChats.current = foundNewChats.map((chat: any) => chat._id);
+  }, [foundNewChats]);
+
+  const getFade = (id: string) =>
+    previousFoundChats.current.includes(id) || foundNewChats.length === loaded;
 
   return (
     <>
-      <div className='bg-newChat-light w-100 px-5 h-28 flex items-end'>
-        <span className='flex'>
-          <button type='button' onClick={closeNewChat}>
-            <svg viewBox='0 0 24 24' width='24' height='24'>
-              <path
-                fill='currentColor'
-                d='M12 4l1.4 1.4L7.8 11H20v2H7.8l5.6 5.6L12 20l-8-8 8-8z'
-              ></path>
-            </svg>
-          </button>
-          <p>New Chat</p>
-        </span>
-      </div>
       <Input
         autoFocus
         value={newChatSearch}
         onChange={(e) => handleOnChange(e.target.value)}
       />
       <div className='bg-contact-dark flex-grow'>
-        {foundNewChats?.map((chat: any) => (
-          <Contact
-            newContact
-            id={chat._id}
-            key={chat._id}
-            onClick={() => addChat(chat._id)}
-          />
-        ))}
+        {foundNewChats && (
+          <TransitionGroup appear>
+            {foundNewChats.map((chat: any, idx: any) => (
+              <CSSTransition classNames='fade' timeout={300} key={chat._id}>
+                <Contact
+                  newContact
+                  onPictureLoad={() => setLoaded((old: any) => old + 1)}
+                  pictureFade={getFade(chat._id)}
+                  lastMessage={chat.status}
+                  order={idx}
+                  id={chat._id}
+                  onClick={() => addChat(chat._id)}
+                />
+              </CSSTransition>
+            ))}
+          </TransitionGroup>
+        )}
       </div>
     </>
   );
@@ -66,5 +82,5 @@ const NewChat = ({ closeNewChat }: NewChatProps) => {
 export default NewChat;
 
 interface NewChatProps {
-  closeNewChat: () => void;
+  onSelection: () => void;
 }
