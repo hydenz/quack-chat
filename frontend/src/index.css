@@ -17,3 +17,23 @@ html {
 .scrollbar-thin {
   scrollbar-width: thin;
 }
+
+.slide-appear,
+.slide-enter {
+  transform: translateX(-100%);
+}
+
+.slide-appear-active,
+.slide-enter-active {
+  transform: translateX(0);
+  transition: transform cubic-bezier(0.1, 0.82, 0.25, 1) 300ms;
+}
+
+.slide-exit {
+  transform: translateX(0);
+}
+
+.slide-exit-active {
+  transform: translateX(-100%);
+  transition: transform cubic-bezier(1, 0.01, 0.78, 0.84) 300ms;
+}
