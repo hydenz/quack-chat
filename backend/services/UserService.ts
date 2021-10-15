@@ -3,6 +3,8 @@ import { User as UserType } from 'types/database';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Request } from 'express';
+import axios from 'axios';
+import FormData from 'form-data';
 
 export default class UserService {
   static async signUp(user: UserType): Promise<string | null> {
@@ -50,5 +52,24 @@ export default class UserService {
     const { nickname }: any = req.query;
     const foundUsers = await User.find({ nickname: new RegExp(nickname, 'i') });
     return foundUsers;
+  }
+
+  static async savePicture(userId: string, base64Image: string) {
+    const formData = new FormData();
+    formData.append('image', base64Image);
+    formData.append('type', 'base64');
+    formData.append(
+      'Authorization',
+      `Client-ID ${process.env.IMGUR_CLIENT_ID!}`
+    );
+    const resp: any = await axios.post(
+      'https://api.imgur.com/3/upload',
+      formData,
+      {
+        headers: formData.getHeaders(),
+      }
+    );
+    const pictureHash = resp.data.data.link.split('/').pop();
+    await User.findByIdAndUpdate(userId, { $set: { pictureHash } });
   }
 }
