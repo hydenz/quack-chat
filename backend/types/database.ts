@@ -15,5 +15,6 @@ export interface User {
   username: string;
   password: string;
   nickname: string;
+  status: string;
   pictureHash?: string;
 }

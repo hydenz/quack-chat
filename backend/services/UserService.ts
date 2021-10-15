@@ -50,7 +50,10 @@ export default class UserService {
     }
 
     const { nickname }: any = req.query;
-    const foundUsers = await User.find({ nickname: new RegExp(nickname, 'i') });
+    const foundUsers = await User.find(
+      { nickname: new RegExp(nickname, 'i') },
+      ['nickname', 'pictureHash', 'status']
+    );
     return foundUsers;
   }
 

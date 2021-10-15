@@ -30,7 +30,7 @@ io.on('connection', async (socket: ExtSocket) => {
 
   socket.on(
     'message',
-    (message: IncomingMessage, confirmServerReception: any) => {
+    (message: IncomingMessage, confirmServerReception: () => void) => {
       confirmServerReception();
       if (io.sockets.adapter.rooms.get(message.to)?.size)
         return socket.to(message.to).emit('message', message);
