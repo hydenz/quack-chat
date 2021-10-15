@@ -37,3 +37,49 @@ html {
   transform: translateX(-100%);
   transition: transform cubic-bezier(1, 0.01, 0.78, 0.84) 300ms;
 }
+
+.fade-enter,
+.fade-appear {
+  opacity: 0;
+}
+
+.fade-enter-active,
+.fade-appear-active {
+  transition: opacity 500ms;
+}
+
+.fade-enter-active,
+.fade-appear-active {
+  opacity: 1;
+}
+
+.fade-exit {
+  opacity: 1;
+}
+
+.fade-exit-active {
+  opacity: 0;
+  transition: opacity 500ms;
+}
+
+.scale-appear,
+.scale-enter {
+  transform: scale(0);
+  transform-origin: top left;
+}
+
+.scale-appear-active,
+.scale-enter-active {
+  transform: scale(1);
+  transition: transform 100ms;
+}
+
+.scale-exit {
+  transform: scale(1);
+  transform-origin: top left;
+}
+
+.scale-exit-active {
+  transform: scale(0);
+  transition: transform 100ms;
+}

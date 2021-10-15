@@ -38,6 +38,13 @@ const Actions = () => {
     );
     setMessage('');
   };
+
+  const handleOnChange = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const userInput = ev.target.value;
+    if (userInput === ' ') return;
+    setMessage(userInput);
+  };
+
   return (
     <div className='h-16 bg-actions-dark flex items-center py-3.5 px-2.5'>
       <button className='px-2.5'>
@@ -60,7 +67,7 @@ const Actions = () => {
             ref={inputRef}
             className='w-full bg-actions-light outline-none text-actions-message'
             placeholder='Enter a message'
-            onChange={(e) => setMessage(e.target.value)}
+            onChange={handleOnChange}
             value={message}
           />
         </form>
