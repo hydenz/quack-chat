@@ -1,11 +1,16 @@
 import api from 'api';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useAppSelector } from 'hooks/useSelector';
 import { useAppDispatch } from 'hooks/useDispatch';
+import { createPortal } from 'react-dom';
+import Dropdown from './Dropdown';
+import DropdownItem from './DropdownItem';
 import { ACTION_TYPES } from 'store';
 import db from 'utils/Dexie';
-import loadingPicture from 'assets/loadingPicture.svg';
+import { ReactComponent as DefaultUser } from 'assets/loadingPicture.svg';
+import { ReactComponent as DropdownIcon } from 'assets/dropdown.svg';
+import { CSSTransition } from 'react-transition-group';
 
 const Contact = ({
   id,
@@ -13,6 +18,9 @@ const Contact = ({
   onClick,
   order,
   lastMessage,
+  lastMessageTimestamp,
+  onPictureLoad,
+  pictureFade,
 }: ContactProps) => {
   const [contactData, setContactData] = useState<any>({});
   useEffect(() => {
@@ -22,39 +30,56 @@ const Contact = ({
     });
   }, [id]);
 
-  const selectedContactId = useAppSelector((state) => state.selectedContactId);
   const dispatch = useAppDispatch();
+  const selectedContactId = useAppSelector((state) => state.selectedContactId);
 
-  const deleteChat = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
+  const deleteChat = async () => {
     await db.deleteContact(id);
-    // await db.messages.where('contactId').equals(id).delete();
-    // await db.contacts.where('id').equals(id).delete();
     dispatch({ type: ACTION_TYPES.DESELECT_CONTACT });
   };
-
-  // const lastMessage = useLiveQuery(async () => {
-  //   const messages = await db.messages.where('contactId').equals(id).toArray();
-  //   if (messages.length) {
-  //     return messages.sort((a, b) => b.firstTimestamp - a.firstTimestamp)[0]
-  //       .content;
-  //   }
-  // }, []);
 
   const className = classNames(
     {
       'bg-contact-active': selectedContactId === id,
       'hover:bg-contact-hover': selectedContactId !== id,
-      absolute: !newContact,
       'z-10': order === 0,
     },
-    'flex items-center px-4 py-3 h-18 bg-contact-dark cursor-pointer w-full transition-transform duration-200 ease-in-out'
+    'flex items-center absolute px-4 py-3 h-18 bg-contact-dark cursor-pointer w-full transition-transform duration-200 ease-in-out'
   );
 
   const style =
     order && order > 0
       ? { transform: `translateY(${order * 72}px)` }
       : undefined;
+
+  const [showDropdownIcon, setShowDropdownIcon] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+
+  const positionRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const hideDropdown = () => setShowDropdown(false);
+    if (showDropdown)
+      document
+        .querySelector('#root')!
+        .addEventListener('click', hideDropdown, { once: true });
+    // else document.removeEventListener('click', hideDropdown);
+  }, [showDropdown]);
+
+  const positionRefRect = positionRef.current?.getBoundingClientRect();
+
+  const dropdownStyle = positionRefRect && {
+    left: positionRefRect.left,
+    top: positionRefRect.top + positionRefRect.height,
+  };
+
+  const dropdownIconClassName = showDropdownIcon ? 'visible' : 'invisible';
+
+  const handleShowDropdown = (ev: React.MouseEvent<HTMLOrSVGElement>) => {
+    ev.stopPropagation();
+    setShowDropdown((oldValue) => !oldValue);
+  };
+
   return (
     <div
       onClick={(e) => {
@@ -63,27 +88,59 @@ const Contact = ({
       }}
       className={className}
       style={style}
+      onMouseEnter={() => setShowDropdownIcon(true)}
+      onMouseLeave={() => setShowDropdownIcon(false)}
     >
-      <img
-        src={`https://i.imgur.com/${contactData.pictureHash}`}
-        alt='Contact'
-        style={{ backgroundImage: `url(${loadingPicture})` }}
-        className='rounded-full h-full w-11'
-      />
-      <span className='ml-3.5'>
-        <p className='text-default'>{contactData.nickname}</p>
-        {lastMessage && <p className='text-defaultDark'>{lastMessage}</p>}
-        {/* {lastMessage && !newContact && (
-          <p className='text-defaultDark'>{lastMessage}</p>
-        )} */}
+      <span className='relative h-full w-11'>
+        <DefaultUser className='absolute h-full w-11 z-0' />
+        <img
+          src={`https://i.imgur.com/${contactData.pictureHash}`}
+          alt=''
+          className='rounded-full h-full w-11 transition-opacity ease-in duration-200 absolute opacity-0'
+          style={pictureFade ? { opacity: +pictureFade } : undefined}
+          {...(onPictureLoad && { onLoad: () => onPictureLoad() })}
+        />
       </span>
-      <button
-        type='button'
-        className='ml-auto text-message-content'
-        onClick={deleteChat}
-      >
-        Deletar
-      </button>
+      <span className='ml-3.5 flex-grow'>
+        <div className='flex w-full'>
+          <p className='text-default flex-grow'>{contactData.nickname}</p>
+          {lastMessageTimestamp && <p>{lastMessageTimestamp}</p>}
+        </div>
+        <div className='flex'>
+          {lastMessage && (
+            <p className='text-defaultDark flex-grow'>{lastMessage}</p>
+          )}
+          <span ref={positionRef}>
+            {!newContact && (
+              <DropdownIcon
+                width={19}
+                height={20}
+                onClick={handleShowDropdown}
+                className={dropdownIconClassName}
+              />
+            )}
+            {createPortal(
+              <CSSTransition
+                appear
+                classNames='scale'
+                in={showDropdown}
+                timeout={100}
+                unmountOnExit
+              >
+                <Dropdown
+                  className='w-56 shadow-dropdown rounded'
+                  style={dropdownStyle}
+                >
+                  <ul>
+                    <DropdownItem text='Delete chat' onClick={deleteChat} />
+                  </ul>
+                </Dropdown>
+              </CSSTransition>,
+              document.querySelector('#root')!
+            )}
+          </span>
+        </div>
+      </span>
     </div>
   );
 };
@@ -93,7 +150,10 @@ export default Contact;
 interface ContactProps {
   newContact?: boolean;
   lastMessage?: string;
+  lastMessageTimestamp?: string;
   id: string;
   onClick: () => void;
   order?: number;
+  onPictureLoad?: () => void;
+  pictureFade?: boolean;
 }
