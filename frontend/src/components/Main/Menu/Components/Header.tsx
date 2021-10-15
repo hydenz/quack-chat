@@ -1,8 +1,9 @@
 import api from 'api';
 import { useEffect, useState } from 'react';
 import jwtDecode from 'jwt-decode';
+import { ReactComponent as DefaultUser } from 'assets/loadingPicture.svg';
 
-const Header = ({ openNewChat }: HeaderProps) => {
+const Header = ({ openNewChat, openEditProfile }: HeaderProps) => {
   const [profilePicture, setProfilePicture] = useState('');
   useEffect(() => {
     const { id }: any = jwtDecode(localStorage.getItem('accessToken')!);
@@ -12,9 +13,21 @@ const Header = ({ openNewChat }: HeaderProps) => {
       );
     });
   }, []);
+  const [picFade, setPicFade] = useState(false);
+
   return (
     <header className='h-14 py-2 px-4 flex justify-between items-center bg-header-dark'>
-      <img className='rounded-full h-full' src={profilePicture} alt='Your' />
+      <span className='h-full w-11 relative cursor-pointer'>
+        <img
+          className='rounded-full h-full w-11 z-10 transition-opacity ease-in duration-200 absolute opacity-0'
+          src={profilePicture}
+          {...(picFade && { style: { opacity: 1 } })}
+          alt='Your'
+          onLoad={() => setPicFade(true)}
+          onClick={openEditProfile}
+        />
+        <DefaultUser className='absolute h-full w-11 z-0' />
+      </span>
       <button
         type='button'
         onClick={openNewChat}
@@ -40,4 +53,5 @@ export default Header;
 
 interface HeaderProps {
   openNewChat: () => void;
+  openEditProfile: () => void;
 }
