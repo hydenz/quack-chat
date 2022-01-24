@@ -36,7 +36,7 @@ const Header = () => {
           src={`https://i.imgur.com/${contactData.pictureHash}`}
           className='inline h-full rounded-full'
         />
-        <div className='flex flex-col ml-4'>
+        <div className='flex flex-col justify-center ml-4'>
           <span className='text-default'>{contactData.nickname}</span>
           <CSSTransition
             classNames='fade'
@@ -45,7 +45,7 @@ const Header = () => {
             timeout={300}
             unmountOnExit
           >
-            <span className='text-default'>Online</span>
+            <span className='text-default text-sm'>online</span>
           </CSSTransition>
         </div>
       </span>

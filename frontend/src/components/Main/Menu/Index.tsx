@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Dispatch, useEffect, useState } from 'react';
 import { Contact, Header, Input } from './Components/Index';
 import NewChat from './Components/NewChat';
 import type { Contact as ContactType } from 'utils/Dexie';
@@ -10,10 +10,14 @@ import db from 'utils/Dexie';
 import EditProfile from './Components/EditProfile';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import Slider from './Components/Slider';
+import { useAppSelector } from 'hooks/useSelector';
 
-const Menu = () => {
+const Menu = ({ currentChatId, setCurrentChatId }: MenuProps) => {
   const [showNewChat, setShowNewChat] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [contactSearch, setContactSearch] = useState('');
+
+  // const selectedContactId = useAppSelector((state) => state.selectedContactId);
 
   const dispatch = useAppDispatch();
 
@@ -28,12 +32,14 @@ const Menu = () => {
         );
       return [fetchedContacts, sortedMessages];
     },
-    [],
+    [contactSearch],
     [undefined, undefined]
   );
 
-  const selectContact = (id: string) =>
-    dispatch({ type: ACTION_TYPES.SELECT_CONTACT, payload: { id } });
+  const selectContact = (id: string) => setCurrentChatId(id);
+  const deselectContact = () => setCurrentChatId('');
+
+  // dispatch({ type: ACTION_TYPES.SELECT_CONTACT, payload: { id } });
 
   const [numOfLoaded, setNumOfLoaded] = useState(0);
   const [picsFade, setPicsFade] = useState(false);
@@ -57,7 +63,12 @@ const Menu = () => {
           title='Start a conversation'
           onClose={() => setShowNewChat(false)}
         >
-          <NewChat onSelection={() => setShowNewChat(false)} />
+          <NewChat
+            onSelection={(id: string) => {
+              setCurrentChatId(id);
+              setShowNewChat(false);
+            }}
+          />
         </Slider>
         <Header
           openNewChat={() => setShowNewChat(true)}
@@ -75,6 +86,7 @@ const Menu = () => {
                       sortedMessages.find((message) => message.contactId === id)
                         ?.content
                     }
+                    selected={currentChatId === id}
                     lastMessageTimestamp={getHour(
                       sortedMessages.find(
                         (message) => message.contactId === id
@@ -83,6 +95,7 @@ const Menu = () => {
                     onPictureLoad={() => setNumOfLoaded((old) => old + 1)}
                     pictureFade={picsFade}
                     onClick={() => selectContact(id)}
+                    onDelete={deselectContact}
                     order={sortedMessages!.findIndex(
                       (el: any) => el.contactId === id
                     )}
@@ -98,3 +111,8 @@ const Menu = () => {
 };
 
 export default Menu;
+
+interface MenuProps {
+  currentChatId: string;
+  setCurrentChatId: Dispatch<React.SetStateAction<string>>;
+}

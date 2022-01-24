@@ -39,6 +39,7 @@ export default class UserService {
       { id: foundUser._id },
       process.env.JWT_SECRET!
     );
+
     return accessToken;
   }
 

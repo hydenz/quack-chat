@@ -36,8 +36,8 @@ const NewChat = ({ onSelection }: NewChatProps) => {
   const dispatch = useAppDispatch();
 
   const addChat = async (id: string) => {
-    dispatch({ type: ACTION_TYPES.SELECT_CONTACT, payload: { id } });
-    onSelection();
+    // dispatch({ type: ACTION_TYPES.SELECT_CONTACT, payload: { id } });
+    onSelection(id);
   };
 
   const previousFoundChats = useRef<any>();
@@ -82,5 +82,5 @@ const NewChat = ({ onSelection }: NewChatProps) => {
 export default NewChat;
 
 interface NewChatProps {
-  onSelection: () => void;
+  onSelection: (id: string) => void;
 }

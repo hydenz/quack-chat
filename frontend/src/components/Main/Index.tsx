@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ws from 'utils/websocket';
+import EntireChat from './Chat/Components/EntireChat';
 import Chat from './Chat/Index';
 import Menu from './Menu/Index';
 
 const Main = () => {
+  const [currentChatId, setCurrentChatId] = useState('');
+
   useEffect(() => {
     ws.subscribeToMessages!();
 
@@ -14,8 +17,10 @@ const Main = () => {
 
   return (
     <>
-      <Menu />
-      <Chat />
+      <Menu currentChatId={currentChatId} setCurrentChatId={setCurrentChatId} />
+      <div className='flex flex-col flex-grow bg-idle'>
+        {currentChatId && <EntireChat currentChatId={currentChatId} />}
+      </div>
     </>
   );
 };

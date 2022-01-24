@@ -1,4 +1,5 @@
 import { useAppSelector } from 'hooks/useSelector';
+import EntireChat from './Components/EntireChat';
 import { Actions, Conversation, Header } from './Components/Index';
 
 const Chat = () => {
@@ -8,9 +9,10 @@ const Chat = () => {
     <div className='flex flex-col flex-grow bg-idle'>
       {selectedContactId && (
         <>
-          <Header />
+          {/* <EntireChat /> */}
+          {/* <Header />
           <Conversation />
-          <Actions />
+          <Actions /> */}
         </>
       )}
     </div>

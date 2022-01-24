@@ -1,21 +1,19 @@
 import api from 'api';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import { useAppSelector } from 'hooks/useSelector';
 import { useAppDispatch } from 'hooks/useDispatch';
-import { createPortal } from 'react-dom';
-import Dropdown from './Dropdown';
 import DropdownItem from './DropdownItem';
-import { ACTION_TYPES } from 'store';
 import db from 'utils/Dexie';
 import { ReactComponent as DefaultUser } from 'assets/loadingPicture.svg';
 import { ReactComponent as DropdownIcon } from 'assets/dropdown.svg';
-import { CSSTransition } from 'react-transition-group';
+import Dropdown from './Dropdown';
 
 const Contact = ({
+  selected,
   id,
   newContact,
   onClick,
+  onDelete,
   order,
   lastMessage,
   lastMessageTimestamp,
@@ -31,17 +29,21 @@ const Contact = ({
   }, [id]);
 
   const dispatch = useAppDispatch();
-  const selectedContactId = useAppSelector((state) => state.selectedContactId);
+  // const selectedContactId = useAppSelector((state) => state.selectedContactId);
 
   const deleteChat = async () => {
     await db.deleteContact(id);
-    dispatch({ type: ACTION_TYPES.DESELECT_CONTACT });
+    onDelete!();
+
+    // dispatch({ type: ACTION_TYPES.DESELECT_CONTACT });
   };
 
   const className = classNames(
     {
-      'bg-contact-active': selectedContactId === id,
-      'hover:bg-contact-hover': selectedContactId !== id,
+      // 'bg-contact-active': selectedContactId === id,
+      // 'hover:bg-contact-hover': selectedContactId !== id,
+      'bg-contact-active': selected,
+      'hover:bg-contact-hover': !selected,
       'z-10': order === 0,
     },
     'flex items-center absolute px-4 py-3 h-18 bg-contact-dark cursor-pointer w-full transition-transform duration-200 ease-in-out'
@@ -55,7 +57,7 @@ const Contact = ({
   const [showDropdownIcon, setShowDropdownIcon] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const positionRef = useRef<HTMLSpanElement>(null);
+  // const positionRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const hideDropdown = () => setShowDropdown(false);
@@ -66,14 +68,17 @@ const Contact = ({
     // else document.removeEventListener('click', hideDropdown);
   }, [showDropdown]);
 
-  const positionRefRect = positionRef.current?.getBoundingClientRect();
+  // const positionRefRect = positionRef.current?.getBoundingClientRect();
 
-  const dropdownStyle = positionRefRect && {
-    left: positionRefRect.left,
-    top: positionRefRect.top + positionRefRect.height,
-  };
+  // const dropdownStyle = positionRefRect && {
+  //   left: positionRefRect.left,
+  //   top: positionRefRect.top + positionRefRect.height,
+  // };
 
-  const dropdownIconClassName = showDropdownIcon ? 'visible' : 'invisible';
+  const dropdownIconClassName = classNames(
+    showDropdownIcon ? 'visible' : 'invisible',
+    'relative'
+  );
 
   const handleShowDropdown = (ev: React.MouseEvent<HTMLOrSVGElement>) => {
     ev.stopPropagation();
@@ -110,7 +115,17 @@ const Contact = ({
           {lastMessage && (
             <p className='text-defaultDark flex-grow'>{lastMessage}</p>
           )}
-          <span ref={positionRef}>
+          <span
+            // ref={positionRef}
+            className='relative'
+          >
+            <Dropdown
+              showDropdown={showDropdown}
+              className='w-56'
+              // style={dropdownStyle}
+            >
+              <DropdownItem text='Delete chat' onClick={deleteChat} />
+            </Dropdown>
             {!newContact && (
               <DropdownIcon
                 width={19}
@@ -118,25 +133,6 @@ const Contact = ({
                 onClick={handleShowDropdown}
                 className={dropdownIconClassName}
               />
-            )}
-            {createPortal(
-              <CSSTransition
-                appear
-                classNames='scale'
-                in={showDropdown}
-                timeout={100}
-                unmountOnExit
-              >
-                <Dropdown
-                  className='w-56 shadow-dropdown rounded'
-                  style={dropdownStyle}
-                >
-                  <ul>
-                    <DropdownItem text='Delete chat' onClick={deleteChat} />
-                  </ul>
-                </Dropdown>
-              </CSSTransition>,
-              document.querySelector('#root')!
             )}
           </span>
         </div>
@@ -151,8 +147,10 @@ interface ContactProps {
   newContact?: boolean;
   lastMessage?: string;
   lastMessageTimestamp?: string;
+  selected?: boolean;
   id: string;
   onClick: () => void;
+  onDelete?: () => void;
   order?: number;
   onPictureLoad?: () => void;
   pictureFade?: boolean;

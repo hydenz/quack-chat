@@ -31,6 +31,7 @@ module.exports = {
         'background-color': 'background-color',
       },
       spacing: {
+        0.75: '0.1875rem',
         1.75: '0.44rem',
         2.25: '0.56rem',
         18: '4.5rem',

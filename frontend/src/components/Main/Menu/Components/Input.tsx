@@ -1,4 +1,4 @@
-const Input = ({ placeholder, autoFocus, value, onChange }: SearchProps) => {
+const Input = ({ placeholder, autoFocus, value, onChange }: InputProps) => {
   return (
     <div className='flex justify-center items-center bg-search-dark h-12 px-3 py-2 border-b border-divider'>
       <div className='rounded-full bg-search-medium px-2 py-1 w-full'>
@@ -28,7 +28,7 @@ const Input = ({ placeholder, autoFocus, value, onChange }: SearchProps) => {
 
 export default Input;
 
-interface SearchProps {
+interface InputProps {
   placeholder?: string;
   value?: string;
   onChange?: (ev: React.ChangeEvent<HTMLInputElement>) => void;
