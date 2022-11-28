@@ -1,16 +1,22 @@
-import Authentication from 'components/Authentication/Index';
-import { useAppSelector } from 'hooks/useSelector';
-import Main from 'components/Main/Index';
-import AuthContext from 'contexts/Authentication';
-import useLocalStorage from 'hooks/useLocalStorage';
+import Authentication from "@pages/authentication";
+import Main from "@pages/main";
+import AuthContext from "@contexts/authentication";
+import { useLocalStorage } from "@hooks";
+import { Provider } from "react-redux";
+import store from "redux/store";
+import jwtDecode from "jwt-decode";
 
 function App() {
-  const [accessToken, setAccessToken] = useLocalStorage('accessToken', '');
+  const [accessToken, setAccessToken] = useLocalStorage("accessToken", "");
+
+  const myId = accessToken && (jwtDecode(accessToken) as any).id;
 
   return (
-    <AuthContext.Provider value={{ accessToken, setAccessToken }}>
-      {accessToken ? <Main /> : <Authentication />}
-    </AuthContext.Provider>
+    <Provider store={store}>
+      <AuthContext.Provider value={{ accessToken, setAccessToken, myId }}>
+        {accessToken ? <Main /> : <Authentication />}
+      </AuthContext.Provider>
+    </Provider>
   );
 }
 

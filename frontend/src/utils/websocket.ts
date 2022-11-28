@@ -1,13 +1,12 @@
-import { ExtWebSocket } from 'types/websocket';
-import { io } from 'socket.io-client';
-import db from 'utils/Dexie';
-import jwtDecode from 'jwt-decode';
+import { io } from "socket.io-client";
+import db from "@utils/Dexie";
+import jwtDecode from "jwt-decode";
 
-const ws: ExtWebSocket = io('http://localhost:3001', {
+const ws = io("http://localhost:3001", {
   auth: {
     userId:
-      localStorage.getItem('accessToken') &&
-      (jwtDecode(localStorage.getItem('accessToken')!) as any).id,
+      localStorage.getItem("accessToken") &&
+      (jwtDecode(localStorage.getItem("accessToken")!) as any).id,
   },
 });
 
@@ -20,7 +19,7 @@ const addReceivedMessageToDb = async ({ id, content, from, to }: any) => {
   });
 
   ws.emit(
-    'client-received-message',
+    "client-received-message",
     {
       contactId: from,
       id,
@@ -33,17 +32,17 @@ const updateReceivedMessage = async (messageId: string, changes: any) => {
   await db.updateMessage(messageId, changes);
 };
 
-ws.subscribeToMessages = () => {
-  ws.on('message', addReceivedMessageToDb);
-  ws.on('client-received-message', updateReceivedMessage);
+export const subscribeToMessages = () => {
+  ws.on("message", addReceivedMessageToDb);
+  ws.on("client-received-message", updateReceivedMessage);
 };
 
-ws.unsubscribeToMessages = () => {
-  ws.off('message', addReceivedMessageToDb);
-  ws.off('client-received-message', updateReceivedMessage);
+export const unsubscribeToMessages = () => {
+  ws.off("message", addReceivedMessageToDb);
+  ws.off("client-received-message", updateReceivedMessage);
 };
 
-ws.once('fetch-unread-messages', async (messages) => {
+ws.once("fetch-unread-messages", async (messages) => {
   for (let message of messages) {
     for (let msgData of message.data) {
       await addReceivedMessageToDb({
@@ -56,8 +55,11 @@ ws.once('fetch-unread-messages', async (messages) => {
   }
 });
 
-ws.checkIsOnline = (contactId: string, cb: (isOnline: boolean) => void) => {
-  ws.emit('is-online', contactId, (isOnline: boolean) => {
+export const checkIsOnline = (
+  contactId: string,
+  cb: (isOnline: boolean) => void
+) => {
+  ws.emit("is-online", contactId, (isOnline: boolean) => {
     cb(isOnline);
   });
 };

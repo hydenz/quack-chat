@@ -1,63 +1,41 @@
 {
-  "name": "quack-chat",
-  "version": "0.1.0",
+  "name": "quack-chat-frontend",
   "private": true,
-  "dependencies": {
-    "@craco/craco": "^6.2.0",
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "@types/jest": "^26.0.15",
-    "@types/node": "^12.0.0",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "axios": "^0.21.4",
-    "classnames": "^2.3.1",
-    "dexie": "^v3.2.0-beta.1",
-    "dexie-react-hooks": "^1.0.7",
-    "jwt-decode": "^3.1.2",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-redux": "^7.2.5",
-    "react-scripts": "4.0.3",
-    "react-transition-group": "^4.4.2",
-    "redux": "^4.1.1",
-    "socket.io-client": "^4.2.0",
-    "typescript": "^4.1.2",
-    "use-debounce": "^7.0.0",
-    "uuid": "^3.4.0",
-    "web-vitals": "^1.0.1"
-  },
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
-    "test": "craco test",
-    "eject": "react-scripts eject"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.9.0",
+    "axios": "^1.2.0",
+    "classnames": "^2.3.2",
+    "dexie": "^3.2.2",
+    "dexie-react-hooks": "^1.1.1",
+    "jwt-decode": "^3.1.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.5",
+    "react-transition-group": "^4.4.5",
+    "socket.io-client": "^4.5.4",
+    "use-debounce": "^8.0.4",
+    "uuid": "^9.0.0",
+    "vite-plugin-svgr": "^2.2.2"
   },
   "devDependencies": {
-    "@types/react-redux": "^7.1.18",
-    "@types/react-transition-group": "^4.4.3",
-    "@types/uuid": "^8.3.1",
-    "autoprefixer": "^9.8.6",
-    "postcss": "^7.0.36",
-    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.10"
+    "@types/node": "^18.11.9",
+    "@types/react": "^18.0.24",
+    "@types/react-dom": "^18.0.8",
+    "@types/react-transition-group": "^4.4.5",
+    "@types/uuid": "^8.3.4",
+    "@vitejs/plugin-react": "^2.2.0",
+    "autoprefixer": "^10.4.13",
+    "postcss": "^8.4.19",
+    "tailwindcss": "^3.2.4",
+    "typescript": "^4.6.4",
+    "vite": "^3.2.3",
+    "vite-tsconfig-paths": "^3.6.0"
   }
 }

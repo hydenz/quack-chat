@@ -1,12 +1,12 @@
-import express from 'express';
-import http from 'http';
-import signup from 'routes/signup';
-import signIn from 'routes/signin';
-import users from 'routes/users';
-import pictures from 'routes/pictures';
-import cors from 'cors';
-import authenticateToken from 'middlewares/validators/authenticateToken';
-import messages from 'routes/messages';
+import express from "express";
+import http from "http";
+import signup from "routes/signup";
+import signIn from "routes/signin";
+import users from "routes/users";
+import pictures from "routes/pictures";
+import cors from "cors";
+import { authenticateToken } from "middlewares/validators";
+import messages from "routes/messages";
 
 const app = express();
 const server = http.createServer(app);
